@@ -1,7 +1,7 @@
 /*
  * Exported with nin10kit v1.8
- * Invocation command was nin10kit --mode=3 --resize=240x160 titleImageBg images/titleImageBg.png 
- * Time-stamp: Saturday 07/12/2025, 07:31:54
+ * Invocation command was nin10kit --mode=3 --resize=240x160 titleImageBackG images/titleImageBg.png 
+ * Time-stamp: Sunday 07/13/2025, 07:10:06
  * 
  * Image Information
  * -----------------
@@ -10,8 +10,8 @@
  * All bug reports / feature requests are to be filed here https://github.com/TricksterGuy/nin10kit/issues
  */
 
-#ifndef TITLEIMAGEBG_H
-#define TITLEIMAGEBG_H
+#ifndef TITLEIMAGEBACKG_H
+#define TITLEIMAGEBACKG_H
 
 extern const unsigned short titleImageBg[38400];
 #define TITLEIMAGEBG_SIZE 76800
