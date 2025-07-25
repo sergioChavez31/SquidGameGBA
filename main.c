@@ -52,9 +52,10 @@ int main(void) {
   drawFullScreenImageDMA(titleImageBg);
 
   // draws shapes, this is currently here for debugging purposes
-  //  drawImageDMA(80, 100, 50, 50, circle);
-  //  drawImageDMA(150, 100, 50, 50, triangle);
-  //  drawImageDMA(175, 100, 50, 50, square);
+  int shapesStartPos = 30;
+  drawImageDMA(30, shapesStartPos, 50, 50, circle);
+  drawImageDMA(30, shapesStartPos + 60, 50, 50, triangle);
+  drawImageDMA(30, shapesStartPos + 120, 50, 50, square);
 
 
   while (1) {

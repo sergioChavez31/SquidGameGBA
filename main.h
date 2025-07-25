@@ -23,4 +23,14 @@ struct player {
     int playerSpeed;
 };
 
+struct titleScreenAnimation {
+    int row;
+    int col;
+    int height;
+    int width;
+    int prevRow;
+    int prevCol;
+    int playerSpeed;
+};
+
 #endif
