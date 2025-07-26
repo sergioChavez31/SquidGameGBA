@@ -23,7 +23,7 @@ struct player {
     int playerSpeed;
 };
 
-struct titleScreenAnimation {
+struct titleAnimationImage {
     int row;
     int col;
     int height;
@@ -31,6 +31,7 @@ struct titleScreenAnimation {
     int prevRow;
     int prevCol;
     int playerSpeed;
+    int isFinishedMoving;
 };
 
 #endif

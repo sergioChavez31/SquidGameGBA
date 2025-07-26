@@ -11,7 +11,7 @@
 #include "images/square.h"
 #include "images/triangle.h"
 
-
+#define SHAPE_ANIMATION_BASELINE 55
 // All States that the Game runs on
 enum gba_state {
   START,
@@ -20,6 +20,14 @@ enum gba_state {
   WIN,
   LOSE,
 };
+
+// function that pauses the game in seconds
+void pause(int milliseconds) {
+  int n = milliseconds / 16;
+  for (int i = 0; i < n; i++) {
+    waitForVBlank();
+  }
+}
 
 int main(void) {
   /* TODO: */
@@ -33,16 +41,6 @@ int main(void) {
   // Load initial application state
   enum gba_state state = START;
 
-
-
-
-  // player properties
-  // struct player user;
-  // user.width = 15;
-  // user.height = 15;
-  // user.playerSpeed = 2;
-
-
   // declares status of each image being displayed to the screen
   // this is done to reduce tearing by only loading background images
   // when state is first reached
@@ -51,11 +49,52 @@ int main(void) {
   // starts game loop by displaying title screen
   drawFullScreenImageDMA(titleImageBg);
 
-  // draws shapes, this is currently here for debugging purposes
-  int shapesStartPos = 30;
-  drawImageDMA(30, shapesStartPos, 50, 50, circle);
-  drawImageDMA(30, shapesStartPos + 60, 50, 50, triangle);
-  drawImageDMA(30, shapesStartPos + 120, 50, 50, square);
+  // draws shapes,
+  struct titleAnimationImage circleImage;
+  struct titleAnimationImage squareImage;
+  struct titleAnimationImage triangleImage;
+  // struct titleAnimationImage shapes[] = { circleImage, squareImage, triangleImage };
+  //
+  // for (int i = 0; i < 3; i++) {
+  //   shapes[i].row = 0;
+  //   shapes[i].col = 30 + i * 60;
+  //   shapes[i].prevRow = 0;
+  //   shapes[i].prevCol = 30 + i * 60;
+  //   shapes[i].height = 50;
+  //   shapes[i].width = 50;
+  //   shapes[i].playerSpeed = 1;
+  // }
+  circleImage.row = 0;
+  circleImage.col = 30;
+  circleImage.prevRow = 0;
+  circleImage.prevCol = 30;
+  circleImage.height = 50;
+  circleImage.width = 50;
+  circleImage.playerSpeed = 1;
+  circleImage.isFinishedMoving = 0;
+
+  squareImage.row = 110;
+  squareImage.col = 30 + 60;
+  squareImage.prevRow = 110;
+  squareImage.prevCol = 30 + 60;
+  squareImage.height = 50;
+  squareImage.width = 50;
+  squareImage.playerSpeed = 1;
+  squareImage.isFinishedMoving = 0;
+
+  triangleImage.row = 0;
+  triangleImage.col = 30 + 120;
+  triangleImage.prevRow = 0;
+  triangleImage.prevCol = 30 + 120;
+  triangleImage.height = 50;
+  triangleImage.width = 50;
+  triangleImage.playerSpeed = 1;
+  triangleImage.isFinishedMoving = 0;
+
+
+
+  int currentShape = 1;
+
 
 
   while (1) {
@@ -68,6 +107,36 @@ int main(void) {
     switch (state) {
       case START:
         // Start State
+        switch (currentShape) {
+          case 1:
+            if (circleImage.row < SHAPE_ANIMATION_BASELINE) {
+              circleImage.row += circleImage.playerSpeed;
+              // pause(300);
+            } else {
+              circleImage.isFinishedMoving = 1;
+              currentShape = 2;
+            }
+            break;
+        case 2:
+            if (squareImage.row > SHAPE_ANIMATION_BASELINE) {
+              squareImage.row -= squareImage.playerSpeed;
+              // pause(300);
+            } else {
+              squareImage.isFinishedMoving = 1;
+              currentShape = 3;
+            }
+            break;
+        case 3:
+            if (triangleImage.row < SHAPE_ANIMATION_BASELINE) {
+              triangleImage.row += triangleImage.playerSpeed;
+              // pause(300);
+            } else {
+              triangleImage.isFinishedMoving = 1;
+              currentShape = 4;
+            }
+            break;
+        }
+
         break;
       case STORY:
           break;
@@ -91,8 +160,36 @@ int main(void) {
             isTitleScreenDrawn = 1;
           }
 
+        switch (currentShape) {
+          case 1:
+            if (!circleImage.isFinishedMoving) {
+              undrawImageDMA(circleImage.prevRow, circleImage.prevCol,circleImage.width, circleImage.height,titleImageBg);
+              drawImageDMA(circleImage.row, circleImage.col, circleImage.width, circleImage.height, circle);
+              circleImage.prevRow = circleImage.row;
+              circleImage.prevCol = circleImage.col;
+            }
+            break;
+         case 2:
+            if (!squareImage.isFinishedMoving) {
+              undrawImageDMA(squareImage.prevRow, squareImage.prevCol, squareImage.width, squareImage.height, titleImageBg);
+              drawImageDMA(squareImage.row, squareImage.col, squareImage.width, squareImage.height, square);
+              squareImage.prevRow = squareImage.row;
+              squareImage.prevCol = squareImage.col;
+            }
+            break;
+        case 3:
+            if (!triangleImage.isFinishedMoving) {
+              undrawImageDMA(triangleImage.prevRow, triangleImage.prevCol, triangleImage.width, triangleImage.height, titleImageBg);
+              drawImageDMA(triangleImage.row, triangleImage.col, triangleImage.width, triangleImage.height, triangle);
+              triangleImage.prevRow = triangleImage.row;
+              triangleImage.prevCol = triangleImage.col;
+            }
+            break;
+
+        }
+
           // tells user to slick START button to initialize title
-          drawString(10, 30, "Click START to start the game!", BLACK);
+          // drawString(10, 30, "Click START to start the game!", BLACK);
           break;
       case STORY:
         break;
@@ -126,22 +223,3 @@ int main(void) {
 
   return 0;
 }
-
-// make BW filter
-// for(int r=0; r<height; r++) {
-// 	for(int c=0; c<width; c++) {
-// 		u16 *src = image + r * width + c;
-// 		u16 red = *src & (0b11111 << 10);
-// 		u16 bw = red | red >> 5 | red >> 10;
-// 		videoBuffer[OFFSET(row+r, col+c, 240)] = bw;
-// 	}
-// }
-
-// unsigned short grayscale(unsigned short pixel) {
-//     unsigned int r, g, b, avg;
-//     b = (pixel >> 10) & 0x1f;
-//     g = (pixel >> 5) & 0x1f;
-//     r = pixel & 0x1f;
-//     avg = (r + g + b) / 3;
-//     return avg << 10 | avg << 5 | avg;
-// }
