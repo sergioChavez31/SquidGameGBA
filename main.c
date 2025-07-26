@@ -11,7 +11,6 @@
 #include "images/square.h"
 #include "images/triangle.h"
 
-#define SHAPE_ANIMATION_BASELINE 55
 // All States that the Game runs on
 enum gba_state {
   START,
@@ -21,13 +20,7 @@ enum gba_state {
   LOSE,
 };
 
-// function that pauses the game in seconds
-void pause(int milliseconds) {
-  int n = milliseconds / 16;
-  for (int i = 0; i < n; i++) {
-    waitForVBlank();
-  }
-}
+
 
 int main(void) {
   /* TODO: */
@@ -50,47 +43,15 @@ int main(void) {
   drawFullScreenImageDMA(titleImageBg);
 
   // draws shapes,
-  struct titleAnimationImage circleImage;
-  struct titleAnimationImage squareImage;
-  struct titleAnimationImage triangleImage;
-  // struct titleAnimationImage shapes[] = { circleImage, squareImage, triangleImage };
-  //
-  // for (int i = 0; i < 3; i++) {
-  //   shapes[i].row = 0;
-  //   shapes[i].col = 30 + i * 60;
-  //   shapes[i].prevRow = 0;
-  //   shapes[i].prevCol = 30 + i * 60;
-  //   shapes[i].height = 50;
-  //   shapes[i].width = 50;
-  //   shapes[i].playerSpeed = 1;
-  // }
-  circleImage.row = 0;
-  circleImage.col = 30;
-  circleImage.prevRow = 0;
-  circleImage.prevCol = 30;
-  circleImage.height = 50;
-  circleImage.width = 50;
-  circleImage.playerSpeed = 1;
-  circleImage.isFinishedMoving = 0;
+  titleAnimationImage circleImage;
+  titleAnimationImage squareImage;
+  titleAnimationImage triangleImage;
 
-  squareImage.row = 110;
-  squareImage.col = 30 + 60;
-  squareImage.prevRow = 110;
-  squareImage.prevCol = 30 + 60;
-  squareImage.height = 50;
-  squareImage.width = 50;
-  squareImage.playerSpeed = 1;
-  squareImage.isFinishedMoving = 0;
+  titleAnimationImage *circleImagePtr = &circleImage;
+  titleAnimationImage *squareImagePtr = &squareImage;
+  titleAnimationImage *triangleImagePtr = &triangleImage;
 
-  triangleImage.row = 0;
-  triangleImage.col = 30 + 120;
-  triangleImage.prevRow = 0;
-  triangleImage.prevCol = 30 + 120;
-  triangleImage.height = 50;
-  triangleImage.width = 50;
-  triangleImage.playerSpeed = 1;
-  triangleImage.isFinishedMoving = 0;
-
+  initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr);
 
 
   int currentShape = 1;
@@ -154,9 +115,10 @@ int main(void) {
       case START:
         // Start State
 
-          // draws tile screen background
+          // Start loading in background title screen animations
           if (!isTitleScreenDrawn) {
             drawFullScreenImageDMA(titleImageBg);
+            initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr);
             isTitleScreenDrawn = 1;
           }
 
@@ -185,7 +147,6 @@ int main(void) {
               triangleImage.prevCol = triangleImage.col;
             }
             break;
-
         }
 
           // tells user to slick START button to initialize title
@@ -222,4 +183,40 @@ int main(void) {
   }
 
   return 0;
+}
+
+void pause(int milliseconds) {
+  int n = milliseconds / 16;
+  for (int i = 0; i < n; i++) {
+    waitForVBlank();
+  }
+}
+
+void initializeTitleAnimation(titleAnimationImage *circle, titleAnimationImage *square, titleAnimationImage *triangle) {
+  circle->row = 0;
+  circle->col = 30;
+  circle->prevRow = 0;
+  circle->prevCol = 30;
+  circle->height = 50;
+  circle->width = 50;
+  circle->playerSpeed = 1;
+  circle->isFinishedMoving = 0;
+
+  square->row = 110;
+  square->col = 30 + 60;
+  square->prevRow = 110;
+  square->prevCol = 30 + 60;
+  square->height = 50;
+  square->width = 50;
+  square->playerSpeed = 1;
+  square->isFinishedMoving = 0;
+
+  triangle->row = 0;
+  triangle->col = 30 + 120;
+  triangle->prevRow = 0;
+  triangle->prevCol = 30 + 120;
+  triangle->height = 50;
+  triangle->width = 50;
+  triangle->playerSpeed = 1;
+  triangle->isFinishedMoving = 0;
 }
