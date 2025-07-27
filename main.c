@@ -10,6 +10,8 @@
 #include "images/circle.h"
 #include "images/square.h"
 #include "images/triangle.h"
+#include "images/titleLogo1.h"
+#include "images/titleLogo2.h"
 
 // All States that the Game runs on
 enum gba_state {
@@ -46,15 +48,19 @@ int main(void) {
   titleAnimationImage circleImage;
   titleAnimationImage squareImage;
   titleAnimationImage triangleImage;
+  titleAnimationImage titleLogoImage;
+  titleAnimationImage titleOtherLogoImage;
 
   titleAnimationImage *circleImagePtr = &circleImage;
   titleAnimationImage *squareImagePtr = &squareImage;
   titleAnimationImage *triangleImagePtr = &triangleImage;
+  titleAnimationImage *titleLogoImagePtr = &titleLogoImage;
+  titleAnimationImage *titleOtherLogoImagePtr = &titleOtherLogoImage;
 
-  initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr);
+  initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr, titleLogoImagePtr, titleOtherLogoImagePtr);
 
 
-  int currentShape = 1;
+  int animationPhase = 1;
 
 
 
@@ -68,33 +74,39 @@ int main(void) {
     switch (state) {
       case START:
         // Start State
-        switch (currentShape) {
+        switch (animationPhase) {
           case 1:
-            if (circleImage.row < SHAPE_ANIMATION_BASELINE) {
+            if (circleImage.row < SHAPE_ANIMATION_BASELINE_1) {
               circleImage.row += circleImage.playerSpeed;
-              // pause(300);
             } else {
               circleImage.isFinishedMoving = 1;
-              currentShape = 2;
             }
             break;
         case 2:
-            if (squareImage.row > SHAPE_ANIMATION_BASELINE) {
+            if (squareImage.row > SHAPE_ANIMATION_BASELINE_1) {
               squareImage.row -= squareImage.playerSpeed;
-              // pause(300);
             } else {
               squareImage.isFinishedMoving = 1;
-              currentShape = 3;
             }
             break;
         case 3:
-            if (triangleImage.row < SHAPE_ANIMATION_BASELINE) {
+            if (triangleImage.row < SHAPE_ANIMATION_BASELINE_1) {
               triangleImage.row += triangleImage.playerSpeed;
-              // pause(300);
             } else {
               triangleImage.isFinishedMoving = 1;
-              currentShape = 4;
             }
+            break;
+        case 4:
+            if (circleImage.row != SHAPE_ANIMATION_BASELINE_2) {
+              circleImage.row += circleImage.playerSpeed;
+              squareImage.row += squareImage.playerSpeed;
+              triangleImage.row += triangleImage.playerSpeed;
+              pause(ANIMATION_DELAY_MS);
+            } else {
+              circleImage.isFinishedMoving = 1;
+            }
+            break;
+        case 5:
             break;
         }
 
@@ -118,17 +130,19 @@ int main(void) {
           // Start loading in background title screen animations
           if (!isTitleScreenDrawn) {
             drawFullScreenImageDMA(titleImageBg);
-            initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr);
+            initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr, titleLogoImagePtr, titleOtherLogoImagePtr);
             isTitleScreenDrawn = 1;
           }
 
-        switch (currentShape) {
+        switch (animationPhase) {
           case 1:
             if (!circleImage.isFinishedMoving) {
               undrawImageDMA(circleImage.prevRow, circleImage.prevCol,circleImage.width, circleImage.height,titleImageBg);
               drawImageDMA(circleImage.row, circleImage.col, circleImage.width, circleImage.height, circle);
               circleImage.prevRow = circleImage.row;
               circleImage.prevCol = circleImage.col;
+            } else {
+              animationPhase = 2;
             }
             break;
          case 2:
@@ -137,6 +151,8 @@ int main(void) {
               drawImageDMA(squareImage.row, squareImage.col, squareImage.width, squareImage.height, square);
               squareImage.prevRow = squareImage.row;
               squareImage.prevCol = squareImage.col;
+            } else {
+              animationPhase = 3;
             }
             break;
         case 3:
@@ -145,8 +161,38 @@ int main(void) {
               drawImageDMA(triangleImage.row, triangleImage.col, triangleImage.width, triangleImage.height, triangle);
               triangleImage.prevRow = triangleImage.row;
               triangleImage.prevCol = triangleImage.col;
+            } else {
+              pause(SECONDS_TO_MS(3));
+              circleImage.isFinishedMoving = 0;
+              animationPhase = 4;
             }
             break;
+        case 4:
+            if (!circleImage.isFinishedMoving) {
+              undrawImageDMA(circleImage.prevRow, circleImage.prevCol,circleImage.width, circleImage.height,titleImageBg);
+              drawImageDMA(circleImage.row, circleImage.col, circleImage.width, circleImage.height, circle);
+              circleImage.prevRow = circleImage.row;
+              circleImage.prevCol = circleImage.col;
+
+              undrawImageDMA(squareImage.prevRow, squareImage.prevCol, squareImage.width, squareImage.height, titleImageBg);
+              drawImageDMA(squareImage.row, squareImage.col, squareImage.width, squareImage.height, square);
+              squareImage.prevRow = squareImage.row;
+              squareImage.prevCol = squareImage.col;
+
+              undrawImageDMA(triangleImage.prevRow, triangleImage.prevCol, triangleImage.width, triangleImage.height, titleImageBg);
+              drawImageDMA(triangleImage.row, triangleImage.col, triangleImage.width, triangleImage.height, triangle);
+              triangleImage.prevRow = triangleImage.row;
+              triangleImage.prevCol = triangleImage.col;
+            } else {
+              animationPhase = 5;
+            }
+            break;
+        case 5:
+            if (!titleLogoImage.isDisplayed) {
+              drawTitleAnimationDMA(titleLogoImage.row, titleLogoImage.col, titleLogoImage.width, titleLogoImage.height, titleLogo1, 125);
+              drawTitleAnimationDMA(titleOtherLogoImage.row, titleOtherLogoImage.col, titleOtherLogoImage.width, titleOtherLogoImage.height, titleLogo2, 50);
+              titleLogoImage.isDisplayed = 1;
+            }
         }
 
           // tells user to slick START button to initialize title
@@ -192,7 +238,11 @@ void pause(int milliseconds) {
   }
 }
 
-void initializeTitleAnimation(titleAnimationImage *circle, titleAnimationImage *square, titleAnimationImage *triangle) {
+void initializeTitleAnimation(titleAnimationImage *circle,
+  titleAnimationImage *square,
+  titleAnimationImage *triangle,
+  titleAnimationImage *titleLogo,
+  titleAnimationImage *titleOtherLogo) {
   circle->row = 0;
   circle->col = 30;
   circle->prevRow = 0;
@@ -203,20 +253,32 @@ void initializeTitleAnimation(titleAnimationImage *circle, titleAnimationImage *
   circle->isFinishedMoving = 0;
 
   square->row = 110;
-  square->col = 30 + 60;
+  square->col = 90;
   square->prevRow = 110;
-  square->prevCol = 30 + 60;
+  square->prevCol = 90;
   square->height = 50;
   square->width = 50;
   square->playerSpeed = 1;
   square->isFinishedMoving = 0;
 
   triangle->row = 0;
-  triangle->col = 30 + 120;
+  triangle->col = 150;
   triangle->prevRow = 0;
-  triangle->prevCol = 30 + 120;
+  triangle->prevCol = 150;
   triangle->height = 50;
   triangle->width = 50;
   triangle->playerSpeed = 1;
   triangle->isFinishedMoving = 0;
+
+  titleLogo->row = 20;
+  titleLogo->col = 20;
+  titleLogo->height = 45;
+  titleLogo->width = 95;
+  titleLogo->isDisplayed = 0;
+
+  titleOtherLogo->row = 20;
+  titleOtherLogo->col = 120;
+  titleOtherLogo->height = 36;
+  titleOtherLogo->width = 100;
+  titleOtherLogo->isDisplayed = 0;
 }

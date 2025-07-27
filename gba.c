@@ -1,4 +1,5 @@
 #include "gba.h"
+#include "main.h"
 
 volatile unsigned short *videoBuffer = (volatile unsigned short *) 0x6000000;
 u32 vBlankCounter = 0;
@@ -142,4 +143,16 @@ void drawCenteredString(int row, int col, int width, int height, char *str, u16 
   int new_row = row + ((height - strHeight) >> 1);
   int new_col = col + ((width - strWidth) >> 1);
   drawString(new_row, new_col, str, color);
+}
+
+//
+void drawTitleAnimationDMA(int row, int col, int width, int height, const u16 *image, int delay) {
+  for (int y = 0; y < height; y++) {
+    const u16 *src = image + y * width;
+    volatile u16 *dst = videoBuffer + OFFSET(row + y, col, WIDTH);
+    DMA[3].src = src;
+    DMA[3].dst = dst;
+    DMA[3].cnt = DMA_ON | DMA_16 | DMA_NOW | DMA_SOURCE_INCREMENT | DMA_DESTINATION_INCREMENT | width;
+    pause(delay);
+  }
 }

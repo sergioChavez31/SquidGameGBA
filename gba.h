@@ -147,4 +147,7 @@ void drawCenteredString(int row, int col, int width, int height, char *str, u16 
 // This is in the font.c file. You can replace the font if you want.
 extern const unsigned char fontdata_6x8[12288];
 
+// special display image function used for title screen animation
+void drawTitleAnimationDMA(int row, int col, int width, int height, const u16 *image, int delay);
+
 #endif
