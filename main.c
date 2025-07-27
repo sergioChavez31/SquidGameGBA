@@ -191,6 +191,7 @@ int main(void) {
             if (!titleLogoImage.isDisplayed) {
               drawTitleAnimationDMA(titleLogoImage.row, titleLogoImage.col, titleLogoImage.width, titleLogoImage.height, titleLogo1, 125);
               drawTitleAnimationDMA(titleOtherLogoImage.row, titleOtherLogoImage.col, titleOtherLogoImage.width, titleOtherLogoImage.height, titleLogo2, 50);
+              drawString(135, 30, "Click START to start the game!", BLACK);
               titleLogoImage.isDisplayed = 1;
             }
         }
@@ -276,7 +277,7 @@ void initializeTitleAnimation(titleAnimationImage *circle,
   titleLogo->width = 95;
   titleLogo->isDisplayed = 0;
 
-  titleOtherLogo->row = 20;
+  titleOtherLogo->row = 25;
   titleOtherLogo->col = 120;
   titleOtherLogo->height = 36;
   titleOtherLogo->width = 100;
