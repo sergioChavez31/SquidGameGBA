@@ -30,8 +30,8 @@ int main(void) {
   REG_DISPCNT = MODE3 | BG2_ENABLE;
 
   // Save current and previous state of button input.
-  // u32 previousButtons = BUTTONS;
-  // u32 currentButtons = BUTTONS;
+  u32 previousButtons = BUTTONS;
+  u32 currentButtons = BUTTONS;
 
   // Load initial application state
   enum gba_state state = START;
@@ -57,6 +57,7 @@ int main(void) {
   titleAnimationImage *titleLogoImagePtr = &titleLogoImage;
   titleAnimationImage *titleOtherLogoImagePtr = &titleOtherLogoImage;
 
+
   initializeTitleAnimation(circleImagePtr, squareImagePtr, triangleImagePtr, titleLogoImagePtr, titleOtherLogoImagePtr);
 
 
@@ -65,7 +66,7 @@ int main(void) {
 
 
   while (1) {
-    // currentButtons = BUTTONS; // Load the current state of the buttons
+    currentButtons = BUTTONS; // Load the current state of the buttons
 
     // Manipulate the state machine below as needed //
     // NOTE: Call waitForVBlank() before you draw
@@ -200,6 +201,7 @@ int main(void) {
           // drawString(10, 30, "Click START to start the game!", BLACK);
           break;
       case STORY:
+        fillScreenDMA(RED);
         break;
       case PLAY:
         break;
@@ -212,12 +214,18 @@ int main(void) {
     // 3. Choose next state
     switch (state) {
       case START:
-
+        if (KEY_DOWN(BUTTON_START, BUTTONS)) {
+          isTitleScreenDrawn = 0;
+          state = STORY;
+        }
         break;
-      case PLAY:
-
-          break;
       case STORY:
+        if (KEY_DOWN(BUTTON_SELECT, BUTTONS)) {
+          animationPhase = 1;
+          state = START;
+        }
+          break;
+      case PLAY:
 
           break;
       case WIN:
@@ -226,7 +234,8 @@ int main(void) {
       case LOSE:
         break;
     }
-    // previousButtons = currentButtons; // Store the current state of the buttons
+    previousButtons = currentButtons; // Store the current state of the buttons
+    UNUSED(previousButtons);
   }
 
   return 0;
